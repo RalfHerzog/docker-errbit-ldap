@@ -2,7 +2,7 @@ version: '3'
 
 services:
  errbit:
-  image: ralfherzog/docker-errbit-ldap:latest
+  image: ralfherzog/errbit-ldap:latest
   environment:
   - PORT=8080
   - RACK_ENV=production

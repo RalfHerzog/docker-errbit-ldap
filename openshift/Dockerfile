@@ -1,57 +1,15 @@
-FROM errbit/errbit:latest
+FROM centos/ruby-23-centos7
+
+EXPOSE 8080
 
 USER root
 
-# Trust my own services (does not work right not; seems to be a problem with alpine linux)
-# COPY ./int.rherzog.de-CA.crt /usr/local/share/ca-certificates/int.rherzog.de-CA.crt
-# RUN update-ca-certificates
+RUN git clone https://github.com/errbit/errbit.git errbit && mv errbit/* . && rm -rf errbit/
 
-# Prepare installation of ldap auth gem
-RUN echo "gem 'devise_ldap_authenticatable'" >> Gemfile
+RUN chown -R default: /opt/app-root/src/
 
-# We have to be root to install the net-ldap gem
-RUN bundle config --delete frozen && bundle install && bundle config --global frozen 1
+HEALTHCHECK CMD curl --fail http://localhost:$PORT/users/sign_in || exit 1
 
-# From: https://blog.openshift.com/create-s2i-builder-image/
-# Defines the location of the S2I
-# Although this is defined in openshift/base-centos7 image it's repeated here
-# to make it clear why the following COPY operation is happening
-LABEL io.openshift.s2i.scripts-url="image:///usr/local/s2i"
-# Copy the S2I scripts from ./.s2i/bin/ to /usr/local/s2i when making the builder image
+USER default
 
-COPY ./.s2i ./s2i
-RUN mkdir -p /usr/local/s2i && cp -vr ./s2i/bin/* /usr/local/s2i/
-
-USER 100
-
-## Devise is already set up
-#RUN rails generate devise:install --skip
-#RUN rails generate devise user
-
-RUN rails generate devise_ldap_authenticatable:install
-
-# Tell devise to load ldap devise on startup
-RUN echo 'Errbit::Config.devise_modules << :ldap_authenticatable' > config/initializers/devise_ldap.rb
-
-## Append method to User model
-# This returns the user.rb without the last 'end' instruction
-RUN head -n -1 app/models/user.rb > app/models/user.rb.tmp && \
-# Append the method to run before saving ldap user
-echo -e "\n  def ldap_before_save\n\
-    ## May be your ldap configuration\n\
-    # given_name = Devise::LDAP::Adapter.get_ldap_param(self.username, 'givenName')\n\
-    # surname = Devise::LDAP::Adapter.get_ldap_param(self.username, 'sn')\n\
-    mail = Devise::LDAP::Adapter.get_ldap_param(self.username, 'mail')\n\
-    display_name = Devise::LDAP::Adapter.get_ldap_param(self.username, 'displayName')\n\
-\n\
-    display_name = display_name.first if display_name.is_a? Array\n\
-    mail = mail.first if mail.is_a? Array\n\
-\n\
-    self.name = display_name\n\
-    self.email = mail\n\
-  end\n\
-end\n\
-" >> app/models/user.rb.tmp && \
-# Let the temporary file be the new production one
-mv app/models/user.rb.tmp app/models/user.rb
-
+CMD ["bundle","exec","puma","-C","config/puma.default.rb"]

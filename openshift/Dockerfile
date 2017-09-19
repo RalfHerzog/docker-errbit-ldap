@@ -19,12 +19,10 @@ RUN bundle config --delete frozen && bundle install && bundle config --global fr
 LABEL io.openshift.s2i.scripts-url="image:///usr/local/s2i"
 # Copy the S2I scripts from ./.s2i/bin/ to /usr/local/s2i when making the builder image
 
-COPY ./.s2i ./s2i
-
-RUN mkdir -p /tmp/scripts
-RUN cp -vr ./s2i/bin/* /tmp/scripts/
-
 USER 100
+
+COPY ./.s2i ./s2i
+RUN mkdir -p /tmp/scripts && cp -vr ./s2i/bin/* /tmp/scripts/
 
 ## Devise is already set up
 #RUN rails generate devise:install --skip

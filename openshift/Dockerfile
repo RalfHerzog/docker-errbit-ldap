@@ -12,6 +12,8 @@ RUN echo "gem 'devise_ldap_authenticatable'" >> Gemfile
 # We have to be root to install the net-ldap gem
 RUN bundle config --delete frozen && bundle install && bundle config --global frozen 1
 
+LABEL io.openshift.s2i.scripts-url="image:///app"
+
 USER 100
 
 ## Devise is already set up

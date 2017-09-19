@@ -20,7 +20,7 @@ LABEL io.openshift.s2i.scripts-url="image:///usr/local/s2i"
 # Copy the S2I scripts from ./.s2i/bin/ to /usr/local/s2i when making the builder image
 
 COPY ./.s2i ./s2i
-RUN mkdir -p /tmp/scripts && cp -vr ./s2i/bin/* /tmp/scripts/ && chown 100: /tmp/scripts/ -R
+RUN mkdir -p /usr/local/s2i && cp -vr ./s2i/bin/* /usr/local/s2i/
 
 USER 100
 

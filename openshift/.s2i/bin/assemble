@@ -25,18 +25,17 @@ cp -Rf /tmp/src/. ./
 echo "---> Building application from source..."
 # Add build steps for your application, eg npm install, bundle install, pip install, etc.
 
-bundle install \
-      -j "$(getconf _NPROCESSORS_ONLN)" \
-      --retry 5 \
-      --without test development no_docker
-
-RAILS_ENV=production bundle exec rake assets:precompile
+git clone https://github.com/errbit/errbit.git
+cd errbit/
+git checkout v0.6.1
 
 # Prepare installation of ldap auth gem
 echo "gem 'devise_ldap_authenticatable'" >> Gemfile
 
-# We have to be root to install the net-ldap gem
-bundle config --delete frozen && bundle install && bundle config --global frozen 1
+bundle install \
+      -j "$(getconf _NPROCESSORS_ONLN)" \
+      --retry 5 \
+      --without test development no_docker
 
 ## Devise is already set up
 #rails generate devise:install --skip
@@ -46,6 +45,13 @@ rails generate devise_ldap_authenticatable:install
 
 # Tell devise to load ldap devise on startup
 echo 'Errbit::Config.devise_modules << :ldap_authenticatable' > config/initializers/devise_ldap.rb
+
+# Must be writable by running user
+chmod 777 config/initializers/devise.rb
+chmod 777 config/ldap.yml
+
+mkdir tmp
+chmod 777 tmp/ -R
 
 ## Append method to User model
 # This returns the user.rb without the last 'end' instruction
@@ -70,3 +76,5 @@ end\n\
 
 # Let the temporary file be the new production one
 mv app/models/user.rb.tmp app/models/user.rb
+
+RAILS_ENV=production bundle exec rake assets:precompile

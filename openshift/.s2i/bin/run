@@ -7,7 +7,11 @@
 #	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
 #
 
-cp -v /data/devise.rb /app/config/initializers/devise.rb
-cp -v /data/ldap.yml /app/config/ldap.yml
+cp -v /data/devise.rb errbit/config/initializers/devise.rb
+cp -v /data/ldap.yml errbit/config/ldap.yml
+
+cd errbit/
+
+export MONGO_URL=mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_SERVICE_HOST}:${MONGODB_SERVICE_PORT}/errbit
 
 bundler exec puma -C config/puma.default.rb

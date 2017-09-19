@@ -12,7 +12,13 @@ RUN echo "gem 'devise_ldap_authenticatable'" >> Gemfile
 # We have to be root to install the net-ldap gem
 RUN bundle config --delete frozen && bundle install && bundle config --global frozen 1
 
-LABEL io.openshift.s2i.scripts-url="image:///app"
+# From: https://blog.openshift.com/create-s2i-builder-image/
+# Defines the location of the S2I
+# Although this is defined in openshift/base-centos7 image it's repeated here
+# to make it clear why the following COPY operation is happening
+LABEL io.openshift.s2i.scripts-url="image:///usr/local/s2i"
+# Copy the S2I scripts from ./.s2i/bin/ to /usr/local/s2i when making the builder image
+COPY ./.s2i/bin/ /usr/local/s2i
 
 USER 100
 

@@ -19,8 +19,10 @@ RUN bundle config --delete frozen && bundle install && bundle config --global fr
 LABEL io.openshift.s2i.scripts-url="image:///usr/local/s2i"
 # Copy the S2I scripts from ./.s2i/bin/ to /usr/local/s2i when making the builder image
 
-COPY ./openshift ./openshift
-COPY ./openshift/.s2i/bin/ /usr/local/s2i
+COPY ./.s2i ./s2i
+
+RUN mkdir -p /usr/local/s2i
+RUN cp -vr ./s2i/bin/ /usr/local/s2i/
 
 USER 100
 

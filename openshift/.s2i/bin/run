@@ -1,0 +1,13 @@
+#!/bin/bash -e
+#
+# S2I run script for the '.s2i-test2' image.
+# The run script executes the server that runs your application.
+#
+# For more information see the documentation:
+#	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
+#
+
+cp -v /data/devise.rb /app/config/initializers/devise.rb
+cp -v /data/ldap.yml /app/config/ldap.yml
+
+bundler exec puma -C config/puma.default.rb

@@ -21,8 +21,8 @@ LABEL io.openshift.s2i.scripts-url="image:///usr/local/s2i"
 
 COPY ./.s2i ./s2i
 
-RUN mkdir -p /usr/local/s2i
-RUN cp -vr ./s2i/bin/ /usr/local/s2i/
+RUN mkdir -p /tmp/scripts
+RUN cp -vr ./s2i/bin/* /tmp/scripts/
 
 USER 100
 

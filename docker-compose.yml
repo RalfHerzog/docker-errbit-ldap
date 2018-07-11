@@ -1,25 +1,27 @@
 version: '3'
 
 services:
- errbit:
-  image: ralfherzog/errbit-ldap:latest
-  environment:
-  - PORT=8080
-  - RACK_ENV=production
-  - MONGO_URL=mongodb://mongo:27017/errbit
-  - SECRET_KEY_BASE=SomeSuperSecretPassword
-  - ERRBIT_HOST=errbit.example.com
-  - ERRBIT_USER_HAS_USERNAME=true
-  links:
-  - mongo
-  ports:
-  - "8080:8080"
-  volumes:
-  - ./devise.rb:/app/config/initializers/devise.rb:ro
-  - ./ldap.yml:/app/config/ldap.yml:ro
+  errbit:
+    image: ralfherzog/errbit-ldap:latest
+    build:
+      context: .
+    environment:
+      - PORT=8080
+      - RACK_ENV=production
+      - MONGO_URL=mongodb://mongo:27017/errbit
+      - SECRET_KEY_BASE=SomeSuperSecretPassword
+      - ERRBIT_HOST=errbit.example.com
+      - ERRBIT_USER_HAS_USERNAME=true
+    links:
+      - mongo
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./devise.rb:/app/config/initializers/devise.rb:ro
+      - ./ldap.yml:/app/config/ldap.yml:ro
 
- mongo:
-  image: mongo:3.2
-  volumes:
-  - ./mongo-data:/data/db
+  mongo:
+    image: mongo:3.6
+    volumes:
+      - ./mongo-data:/data/db
 

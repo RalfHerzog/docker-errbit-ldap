@@ -1,18 +1,10 @@
 FROM errbit/errbit:latest
 
-USER root
-
-# Trust my own services (does not work right not; seems to be a problem with alpine linux)
-# COPY ./int.rherzog.de-CA.crt /usr/local/share/ca-certificates/int.rherzog.de-CA.crt
-# RUN update-ca-certificates
-
 # Prepare installation of ldap auth gem
 RUN echo "gem 'devise_ldap_authenticatable'" >> Gemfile
 
 # We have to be root to install the net-ldap gem
 RUN bundle config --delete frozen && bundle install && bundle config --global frozen 1
-
-USER errbit
 
 ## Devise is already set up
 #RUN rails generate devise:install --skip
